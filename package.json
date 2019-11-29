@@ -1,0 +1,30 @@
+{
+  "name": "nostalgia",
+  "version": "1.0.0",
+  "description": "A web App to display image from file system. Features to be implemented : Upload - View - Slideshow images, python or client side(JS) based middleware for image compression, Multi user with authentication and authorization.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VJMatheW/Nostalgia.git"
+  },
+  "keywords": [
+    "Image",
+    "Slideshow",
+    "FS"
+  ],
+  "author": "Vj",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VJMatheW/Nostalgia/issues"
+  },
+  "homepage": "https://github.com/VJMatheW/Nostalgia#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "jpeg-exif": "^1.1.4",
+    "nodemon": "^2.0.1"
+  }
+}

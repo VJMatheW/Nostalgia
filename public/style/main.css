@@ -1,0 +1,211 @@
+/*
+    Styling for modal
+*/
+.modal-content{
+    position: relative;
+    display: flex;    
+    flex-direction: row;
+    height: 100%;
+}
+.modal-top-menu{
+    background: none;
+    z-index: 97;
+    height: 10%;
+    position: absolute;
+    width: 100%;
+}
+.left, .right{
+    flex: 1;
+    position: absolute;
+    height: 100%;
+    width: 45%;
+    cursor: pointer;
+}   
+.left{
+    order: 1;
+}
+.right{
+    order: 3;
+    right: 0;
+}
+.center{
+    flex: 20;
+    order: 2;
+}            
+.modal-close-btn{
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    cursor: pointer;
+    z-index: 100;
+    width: 32px;
+    height: 32px;
+    opacity: 0.3;
+}
+.modal-close-btn:hover{
+    opacity: 1;
+}
+.modal-close-btn:before, .modal-close-btn:after {
+    position: absolute;
+    left: 15px;
+    content: ' ';
+    height: 20px;
+    width: 3px;
+    background-color: white;
+}
+.modal-close-btn:before {
+    transform: rotate(45deg);
+}
+.modal-close-btn:after {
+    transform: rotate(-45deg);
+}
+.modal-img{  
+    background-image: url('../ph.png'); 
+    height: 85%;
+    width:85%;
+    margin-top: 20px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;      
+}
+#timeout{
+    color: white;            
+    margin: 10px 10px;
+    width: 20px;
+}
+
+/* 
+    styling for files and folders
+*/
+.container{
+    padding-top: 10vh;
+    height: 60vh;                        
+}
+.container .folders, .container .files{
+    display: flex;
+    flex-wrap: wrap;
+    align-content: space-around;
+    /* border: 1px solid black;   */
+    margin-top: 10px;  
+    width: 100%;
+}
+.folders .folder{
+    width: 100px;            
+    text-align: center;                                     
+    align-content: space-around;          
+    margin: 5px auto ;            
+    cursor: pointer;
+    transition: all ease-in-out 0.3s;
+}
+.folder:hover{
+    background-color: beige;
+    border: 1px solid gray;             
+}
+.folder .content{
+    font-size: 70px;
+}
+.folder .content:hover{
+    font-size: 65px;
+    transition: all ease-in-out 0.3s;
+}
+
+.folder .name{
+    padding: 2px;
+    width: 100%;
+    overflow:hidden;
+    display:inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.file-parent{
+    width: 300px;
+    height: 200px;            
+    margin: 5px auto;
+    margin-top: 10px;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.3);            
+    overflow: hidden;
+    position: relative;            
+    display: inline-block;
+}
+.file{            
+    height: 100%;
+    width: 100%;
+    margin: 0px 0px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat; 
+    -webkit-transition: all .5s ease-in-out;
+    -moz-transition: all .5s ease-in-out;
+    -o-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;    
+    position: absolute;       
+}
+.file-parent:hover .file, .file-parent:focus .file{
+    -ms-transform: scale(1.2);
+    -moz-transform: scale(1.2);
+    -webkit-transform: scale(1.2);
+    -o-transform: scale(1.2);
+    transform: scale(1.2);                        
+}
+.file-options{
+    position: absolute;
+    bottom: 0px;
+    width: 100%;                        
+    padding: 5px 10px;
+}
+.file-options .download{            
+    float: right;
+    font-size: 15px;
+    font-weight: bolder;
+    padding: 5px 11px;
+    border-radius: 25px;
+    background-color: rgba(0,0,0,0.3);
+    color: white;
+    cursor: pointer;            
+    transition: all .1s ease-in-out; 
+}
+.file-options .download:hover{
+    background-color: rgba(0,0,0,0.9);
+}
+
+/* 
+    styling for path & route 
+*/
+.path{
+    line-height: 4vh;
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    padding: 15px 30px;
+    background-color: rgba(145, 7, 7, 1);
+    z-index: 99;
+    color: white;
+}
+
+.route{
+    cursor: pointer;            
+    font-size: 20px;
+    font-weight: 200;  
+    margin-right: 3px;                     
+}
+.route:hover{
+    text-decoration: underline; 
+}
+
+/*
+styling for back to top button
+*/
+.back-to-top-btn{
+    position: fixed;
+    padding: 7px 14px;
+    background-color: rgba(0,0,0,1);
+    color: white;
+    font-size: 20px;
+    font-weight: bolder;
+    bottom: 40px;
+    right:10px;
+    border-radius: 50px;
+    display: none;
+    cursor: pointer;
+    z-index: 99;
+}

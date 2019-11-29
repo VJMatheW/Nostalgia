@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="style/commons.css">
+    <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="style/mainmob.css">
+    <style>
+        .modal-container-bg{
+            display: block;
+        }
+        .modal-top-menu{
+            background: none;
+            z-index: 97;
+            height: 10%;
+        }
+        #timeout{
+            color: white;            
+            /* margin: 10px 10px; */
+            width: 500px;
+            background-color: aqua;
+        }        
+    </style>
+    <script src="js/commons.js"></script>
+</head>
+<body>
+    <h1>Hello world</h1>
+    <div class="modal-container-bg"> 
+        <div class="modal-content" >
+            <div class="modal-top-menu flex">
+                <div id="ss" onclick="slideSow();" class="play"></div>
+                <div style="position: relative;" >
+                    <span style="position: absolute;top:-10px;color: white;font-size: 9px;" >Transition Speed</span>
+                    <span id="slider">
+                        <input type="range" min="1000" max="10000" class="slider" onchange="fast();" value="3000" step="1000" class="slider" id="time">
+                        <span id="timeout">Hello</span>
+                    </span>                    
+                </div>
+                <!-- <span class="modal-close-btn" id="modal-close-btn" onclick="closeModal();" >X</span>        -->
+                <div class="modal-close-btn" onclick="closeModal();" ></div>
+            </div>
+            <div class="center flex" >
+                <div class="modal-img"></div> 
+            </div>              
+            <div class="left" >left</div>                  
+            <div class="right">right</div>
+        </div>      
+    </div>
+
+    <script>
+    
+        function close(){
+            console.log('triggered');
+            e.target.parentElement.parentElement.style.display = 'none';
+        }
+        fast();
+        function fast(){
+            _('timeout').innerHTML  = (parseInt(_('time').value)/1000)+'s';
+            slideInterval = _('time').value;
+        }
+        let slideshow = false;
+        function slideSow(){
+            if(slideshow){
+                slideshow = false;
+                _('ss').setAttribute('class','play');
+            }else{
+                slideshow= true;
+                _('ss').setAttribute('class','pause');
+            }
+        }
+    </script>
+
+
+    <script src="js/dirview.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
