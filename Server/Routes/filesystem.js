@@ -6,7 +6,7 @@ router.get('/', (req, res)=>{
 })
 
 router.get('/listing', (req, res)=>{
-    let base_dir = "I:\\VJ";
+    let base_dir = process.env.root;
     let dirSer = new DirectoryService(Buffer.from(base_dir).toString('base64'));
     res.json(dirSer.dirListing);
 })

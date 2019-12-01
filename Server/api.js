@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Require
-const Image = require('../Components').Image;
+const Image = require('../Components').ImageService;
 const fsys = require('./Routes/filesystem');
 
 // Routes

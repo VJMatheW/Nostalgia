@@ -1,4 +1,5 @@
 'use strict';
 
-exports.Image = require('./Image/Image');
+exports.ImageService = require('./ImageService/Image');
 exports.DirectoryService = require('./DirectoryService/DirectoryService');
+exports.DatabaseService = require('./DatabaseService');
