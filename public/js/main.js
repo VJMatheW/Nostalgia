@@ -1,5 +1,11 @@
 let images = [];
 
+let displayTime = 4000;
+
+/** Color variable */
+let green = '#4CAF50';
+let red = "#f44336";
+
 function fetchFiles(){
     fetch('/api/files')
     .then(response => {
@@ -67,12 +73,19 @@ function fetchDir(e,folObj=""){
     // controller.abort(); 
     let apiEndPoint = '';
     if(folObj == ""){
-        apiEndPoint = '/api/fs/listing'; // home directory
+        let url = window.location.href;
+        if(url.includes('#')){ // for public sharing
+            let arr = url.split('#');
+            apiEndPoint = '/api/fs/listing/'+arr[1];
+        }else{
+            apiEndPoint = '/api/fs/listing'; // home directory
+        }
     }else{
         apiEndPoint = '/api/fs/listing/'+folObj.encodedPath;        
     }
     get(apiEndPoint)
-    .then(obj=>{        
+    .then(obj=>{  
+        currentDirPath = obj.path;      
         updateDirectoryListing(obj);
         updateRoute(e, folObj);
     })
@@ -127,3 +140,202 @@ window.onscroll = function() {
         backToTopBtn.style.display = "none";
     }    
 };
+
+/**
+    Hide or display + context menu
+ */
+let showlist = true;
+
+function toggleList(){
+    if(showlist){
+        show();
+        showlist = false;
+        setTimeout(()=>{close();}, displayTime);
+    }else{
+        close();
+        showlist = true;
+    }
+}
+function show(e){
+    let list = _('list');
+    _('listbtn').innerHTML = '<i class="fa fa-times" aria-hidden="true"></i>';
+    list.style.height = '140px';
+}
+function close(e){
+    let list = _('list');
+    _('listbtn').innerHTML = '<i class="fa fa-cog" aria-hidden="true"></i>';
+    list.style.height = '0px';
+}
+function upload(){
+    _('file').click();
+    toggleList();
+}
+
+/**
+    Function to upload files and show progress
+ */
+
+let toggleUploadProgressState = false;
+
+function uploadFiles(e){
+    console.log("change event triggered");
+    let promArr = [];
+    let files = e.target.files;
+    console.log("files array", files);
+    let size = ()=>{
+        let byet = 0;
+        for(i=0;i<files.length;i++){
+            byet = byet + files[i].size;
+        }
+        return Math.ceil(((byet/1024)/1024));
+    }
+    let decision = false;
+    if(files.length > 0){
+        decision = confirm("Sure ! You want to upload "+files.length+" file(s) of about "+size()+"MB");
+    }
+    let uploads = _('uploads');
+    if(decision){
+        toggleUploadProgress();
+        _('upload-head-text').innerHTML = 'Uploading '+files.length+' items';
+        uploads.style.display = 'block';
+        for(i=0;i<files.length;i++){
+            let uploadsItem = createUploadsItem(files[i].name);
+            append(_('uploads-items'), uploadsItem);
+            promArr.push(
+                readFileAsDataURL(files[i])
+                .then(file=>{
+                    file['path'] = currentDirPath;
+                    return postAjax('/api/upload', file, uploadsItem);
+                })
+            )
+        }
+        Promise.all(promArr)
+        .then(arrr=>{
+            // close the dialog goes here
+            _('upload-head-text').innerHTML = 'Upload Completed';
+            showNotification('Upload Successful... Your uploads will be available soon :) ');
+            setTimeout(()=>{
+                toggleUploadProgressState = false;
+                _('uploads-items').innerHTML = '';
+                uploads.style.display = 'none';
+                // display modal here
+            }, displayTime);
+        })
+        .catch(err=>{
+            alert('Error Occurred !!');
+            _('upload-head-text').innerHTML = 'Error Occured';
+            showWarning('Error Occured :(  <br> Err : '+err);
+            setTimeout(()=>{
+                toggleUploadProgressState = false;
+                _('uploads-items').innerHTML = '';
+                uploads.style.display = 'none';
+                // display modal here
+            }, displayTime);
+        })
+    }else{
+        alert('Upload aborted !!');
+    }
+}
+
+/** Func to create progress bar inside the Uploads container */
+function createUploadsItem(fileName='not specified'){
+    let uploadsItem = create('div','uploads-item');
+    
+    let name = create('div', 'filename');
+    name.innerHTML = fileName;
+    
+    let progress = create('progress', 'progress');
+    progress.value = '0';
+    progress.max = '100';
+    
+    append(uploadsItem, name);
+    append(uploadsItem, progress);
+
+    return uploadsItem;
+}
+
+function toggleUploadProgress(e){
+    let ele = _('upload-head-btn');
+    if(toggleUploadProgressState){
+        toggleUploadProgressState = false;
+        ele.innerHTML = '<i class="fa fa-chevron-up" aria-hidden="true"></i>';
+        _('uploads-items').style.height = '0px';
+    }else{
+        toggleUploadProgressState = true;
+        ele.innerHTML = '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
+        _('uploads-items').style.height = '160px';
+    }
+}
+
+/**
+    Function to Toggle NewFolder Options
+ */
+let switchNewFolderModal = false;
+
+function toggleNewFolderModal(){
+    if(switchNewFolderModal){
+        switchNewFolderModal = false;              
+        _('folName').value = '';  
+        _('modal-newfolder').style.display = 'none';
+    }else{
+        switchNewFolderModal = true;
+        toggleList();
+        _('modal-newfolder').style.display = 'block';
+    }
+}
+
+function createNewFolder(){
+    let name = _('folName').value.trim();
+    if(name.length > 0 && (/^[a-zA-Z].+/gi).test(name) ){ // && check for valid folder name or not            
+        let postData = {
+            name : name,
+            base : currentDirPath
+        }
+        post('/api/fs/newfolder', postData)
+        .then(res=>{
+            if(res.status){                    
+                // appending folder to container
+                let parentContainer = _('container');
+                let folderCotainer = _('folders');
+                if(!folderCotainer){
+                    folderCotainer = createContainer('folders');
+                    prepend(parentContainer, folderCotainer);
+                }
+                prepend(folderCotainer, createFolder({folderName: res.folderName, encodedPath: res.encodedPath}));
+                toggleNewFolderModal();
+            }else{
+                alert('Creation of folder failed');
+            }
+        })
+        .catch(err=>{
+            toggleNewFolderModal();
+        })
+    }else{
+        // do something
+        alert("FolderName cannot be Empty | Should start with a letter")
+    }
+}
+
+/**
+    Function to display notification and warning
+ */
+function showNotification(content){
+    _('notification-content').innerHTML = content;
+    _('notification-container').style.backgroundColor = green;
+    _('notification-container').style.right = '10px';
+    setTimeout(()=>{
+        _('notification-container-close').click();        
+    }, displayTime);
+}
+function showWarning(content){
+    _('notification-content').innerHTML = content;
+    _('notification-container').style.backgroundColor = red;
+    _('notification-container').style.right = '10px';
+    setTimeout(()=>{
+        _('notification-container-close').click();        
+    }, displayTime);
+}
+
+
+
+

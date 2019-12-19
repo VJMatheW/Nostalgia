@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
 
@@ -13,9 +14,10 @@ const PORT = (process.env.PORT || 5000);
 process.env.root = process.argv[2];
 
 app.set('port', PORT);
+app.use(cors());
 app.use(express.static(path.join(__dirname,'public')));
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.json({limit: '200mb', extended: true}));
+app.use(express.urlencoded({limit: '200mb', extended: true}));
 
 app.use('/api', api);
 

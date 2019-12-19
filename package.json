@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon main.js I:\\VJ"
+    "start": "nodemon main.js F:\\Test\\Compressed"
   },
   "repository": {
     "type": "git",
@@ -23,10 +23,13 @@
   },
   "homepage": "https://github.com/VJMatheW/Nostalgia#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "image-size": "^0.8.3",
     "jimp": "^0.9.3",
     "jpeg-exif": "^1.1.4",
     "nodemon": "^2.0.1",
-    "sqlite3": "^4.1.0"
+    "sqlite3": "^4.1.1",
+    "worker-threads-pool": "^2.0.0"
   }
 }

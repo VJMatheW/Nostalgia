@@ -35,6 +35,18 @@ DirectoryService.prototype.dirListing = function(){
     return obj;
 }
 
+DirectoryService.prototype.createNewFolder = function(folderName, callback){
+    this.path = path.join(this.path,folderName)
+    fs.mkdir(this.path, {recursive: true}, (err)=>{
+        if(err){
+            callback(err);            
+        }else{
+            fs.mkdir(this.path.replace('Compressed', 'Original'), {recursive: true}, (err)=>{});
+            callback(false);
+        }
+    })
+}
+
 DirectoryService.prototype.encode = function(){
     return Buffer.from(this.path).toString('base64');
 }

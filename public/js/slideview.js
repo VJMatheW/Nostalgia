@@ -10,7 +10,7 @@ function slideView(e){
     let index = getIndex(containerChildren, fileParent);
     currentIndex = index;
     if(images[index].base64Url == ''){
-        return getImg(images[index].path)
+        getImg(images[index].path)
         .then(obj=>{
             setImageAndFileOptions(obj, file, images[index].path);
             initiateModal(index);
@@ -18,6 +18,9 @@ function slideView(e){
     }else{
         initiateModal(index);
     }   
+    if(!showlist){ // to close cog context menu if its opened
+        toggleList();
+    }
 }
 
 function fetchAndView(context=true){ // context = true(next) / false(previous)    
@@ -50,24 +53,26 @@ function fetchAndView(context=true){ // context = true(next) / false(previous)
         }, slideInterval);
 }
 
-function slideShow(){
+function slideShow(){    
     if(slideshow){
         clearTimeout(timeOut);
         currentIndex = (currentIndex-1)%images.length;
         slideshow = false;
         _('slider').style.display = 'none';
+        _('ss-download').style.display = 'block';
         _('ss').setAttribute('class','play');
     }else{
         currentIndex = (currentIndex-1)%images.length;
         slideshow = true;
         _('slider').style.display = 'block';
+        _('ss-download').style.display = 'none';
         _('ss').setAttribute('class','pause');
     }
     fetchAndView();
 }
 
 function initiateModal(index){    
-    _('modal-container-bg').style.display = 'block';    
+    _('modal-slideshow').style.display = 'block';    
     _('modal-img').style.backgroundImage = images[index].base64Url;
 }
 
@@ -77,6 +82,21 @@ function closeModal(){
     }    
     _('modal-close-btn').parentElement.parentElement.parentElement.parentElement.style.display = 'none';
 }
+
+/** 
+    Event listener for sliding images using arrow keys
+ */
+document.addEventListener('keydown', (event)=>{    
+    if(slideshow){
+        console.log("Slide true Fired : ", event.keyCode);
+        if(event.keyCode == 39){ // right arrow
+            fetchAndView();
+        }else if(event.keyCode == 37){
+            fetchAndView(false);
+        }
+    }
+
+})
 
 // let modalContainer = create('div','modal-container-bg');
     

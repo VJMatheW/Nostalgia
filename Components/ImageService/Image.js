@@ -47,15 +47,20 @@ Image.prototype.mimeType = function(){
 
 Image.prototype.calcWH = function(meta, height=1080) {
     if(meta.orientation == 8 || meta.orientation == 6){
-        return Math.ceil((meta.height*height)/meta.width);
+        if(meta.orientation == 8 && meta.height > meta.width){
+            return Math.ceil((meta.width*height)/meta.height); // h > w
+        }else{
+            return Math.ceil((meta.height*height)/meta.width);   // w > h
+        }
     }else{
-        return Math.ceil((meta.width*height)/meta.height);
+        return Math.ceil((meta.width*height)/meta.height); // h > w
     }
 }
 
 Image.prototype.getMetaData = function(){
     let img_path = this.img_path;
     let obj = {};
+    console.log(this.exif);
     if(fs.existsSync(this.img_path)){     
         obj['orientation'] = this.exif.Orientation;
         if(this.exif.SubExif){
@@ -83,7 +88,7 @@ Image.prototype.compress = function(width, height, quality=80){
         return img
         .resize(width,height)
         .quality(quality)
-        .write( path.join(img_dest_path,fileName+'_compressed'+ext));    
+        .write( path.join(img_dest_path,fileName+'_compressed_'+height+'_'+quality+ext));    
     })
     .then(obj=>{
         let end = new Date();
@@ -93,6 +98,17 @@ Image.prototype.compress = function(width, height, quality=80){
     .catch(err=>{
         console.log(err);
     })
+}
+
+Image.prototype.calcOrientation = function(width, height){
+    console.log("called orientation")
+    if(width > height){
+        return 1; // landscape
+    }else if(height > width){
+        return 8; // portrait
+    }else{
+        return 1; // square | landscape
+    }
 }
 
 module.exports = Image;

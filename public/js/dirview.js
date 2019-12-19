@@ -18,9 +18,9 @@ function lazyLoad(){
 function setImageAndFileOptions(obj, fileNode, path){
     let fileOpts = create('div','file-options');
     let downloadBtn = create('span', 'download');
-    downloadBtn.innerHTML = "&#11015;";
-    downloadBtn.onclick = function(e){                    
-        download(e);
+    downloadBtn.innerHTML = "<i class='fa fa-download' aria-hidden='true'></i>";//"&#11015;";
+    downloadBtn.onclick = function(){
+        download(path);
     }
     append(fileOpts, downloadBtn);
     let imgData = "url(\"data:"+obj.mime+";base64, "+obj.base64.replace(/(\r\n|\n|\r)/gm, "")+"\")";                
@@ -93,32 +93,14 @@ function updateDirectoryListing(obj){
     moveToTop();   
 }
 
-function download(e){ 
-    let file = e.target.parentElement.parentElement;
-    file = file.firstChild;    
-    let img = file.style.backgroundImage;
-    img = img.substring(5, (img.length - 2))
-    
-    let image = new Image();
-    image.src = img;
-    image.onload = function() {
-        let canvas = create('canvas');
-        canvas.width = image.naturalWidth;
-        canvas.height= image.naturalHeight;
-        
-        let ctx = canvas.getContext("2d");
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(image, 0, 0);
-        
-        // download 
-        let a = create('a');
-        a.download = "test.jpeg";
-        canvas.toBlob(function(blob) {        
-            a.href = URL.createObjectURL(blob);
-            a.click();
-        });
-    };    
-         
+function download(path){ 
+    let a = create('a');
+    if(path == ''){
+        a.href = baseURL+'/api/download/'+_('dowload-hq').checked+'/'+images[index].path;
+    }else{
+        a.href = baseURL+'/api/download/'+_('dowload-hq').checked+'/'+path;
+    }
+    a.click();
 }
 
 async function updateImageSrc(path,base64Url){

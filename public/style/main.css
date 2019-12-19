@@ -153,19 +153,25 @@
     width: 100%;                        
     padding: 5px 10px;
 }
-.file-options .download{            
-    float: right;
-    font-size: 15px;
+.download{
     font-weight: bolder;
-    padding: 5px 11px;
-    border-radius: 25px;
-    background-color: rgba(0,0,0,0.3);
-    color: white;
+    color: rgb(83, 83, 83);
     cursor: pointer;            
     transition: all .1s ease-in-out; 
 }
+.file-options .download{            
+    float: right;
+    font-size: 15px;
+}
+
 .file-options .download:hover{
-    background-color: rgba(0,0,0,0.9);
+    color: black;
+}
+
+.modal-top-menu .download{
+    color: white;
+    font-size: 20px;
+    margin-left: 30px;
 }
 
 /* 
@@ -208,4 +214,78 @@ styling for back to top button
     display: none;
     cursor: pointer;
     z-index: 99;
+}
+
+/* 
+    Styling for Upload's progress 
+*/
+.uploads{
+    border: .1px solid black;
+    width: 200px;  
+    position: fixed;          
+    bottom: 10px;
+    right: 10px;            
+    transition: all 0.2s ease-in-out; 
+    padding: 0px;  
+    display: none;     
+}
+::-webkit-scrollbar {
+    width: 0px;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
+}
+.uploads-items{
+    padding-top: 5px;
+    height: 0px;
+    width: 100%;
+    overflow-y: scroll;  
+    transition: all 0.3s ease-in-out;
+    background-color: rgba(255,255,255,0.9);
+}
+.uploads-item{
+    padding-bottom: 3px;
+    border-bottom: 0.2px solid black;
+    margin:0px 5px;
+}
+.upload-head{
+    display: flex;            
+    background-color: black;
+}
+.upload-head-text{
+    width: 90%;
+    padding: 5px;
+    font-size: 13px;
+    color: white;
+}
+.upload-head-btn{
+    width: 10%;
+    padding-top: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+/* More Options Styling */
+.more-options{
+    position: fixed;
+    z-index: 100;
+    color: white;
+    top: 0px;
+    left: 50%;
+    transition: all 0.5s ease-in-out;
+    cursor: pointer;
+}
+.more-options-container{
+    z-index: 101;
+    height:40px;
+    width: 100%;
+    position: fixed;
+    top:-40px;
+    background-color:rgba(0,0,0,0.9);
+    text-align: center;
+    flex-direction: row;
+    transition: all 0.5s ease-in-out;
+}
+.more-options-container span{
+    margin:0px 5px;
+    cursor: pointer;
+    color: white;
 }

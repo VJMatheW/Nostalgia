@@ -29,4 +29,8 @@
         opacity: 1;
         top: 25px;
     }
+    .path{
+        padding: 10px 10px;
+    }
+
 }
