@@ -85,10 +85,12 @@ Image.prototype.compress = function(width, height, quality=80){
 
     return jimp.read(this.img_path)
     .then(img=>{
+        // path.join(img_dest_path,fileName+'_compressed_'+height+'_'+quality+ext)
+        let dest_file_path = path.join(img_dest_path,fileName+ext)
         return img
         .resize(width,height)
         .quality(quality)
-        .write( path.join(img_dest_path,fileName+'_compressed_'+height+'_'+quality+ext));    
+        .write( path.join(dest_file_path));    
     })
     .then(obj=>{
         let end = new Date();

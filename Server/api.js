@@ -1,19 +1,54 @@
 const router = require('express').Router();
 const fs = require('fs');
 const path = require('path');
-const Pool = require('worker-threads-pool')
+// const Pool = require('worker-threads-pool')
 
 // Require
-const ImageService = require('../Components').ImageService;
+const { ImageService, AuthenticationService } = require('../Components');
+const { LinkSharingService } = require('../Models')
 const fsys = require('./Routes/filesystem');
+const nostalgic = require('./Routes/nostalgic');
+
+// Middleware
+let verifyToken = (req, res, next)=>{
+    try{
+        let authHead = req.get('Authorization');
+        let arr = authHead.split(' ');
+        let payload = AuthenticationService.jwt.verify(arr[1]);
+        if(payload){
+            req.body.u_id = payload.u_id;
+            next()
+        }else{
+            res.status(401).json({'error': 'Token Expired'})
+        }
+    }catch(err){
+        res.status(401).json({'error': 'Token Required'})
+    }
+    
+}
 
 // Routes
 router.use('/fs', fsys);
+router.use('/nostalgic', verifyToken);
+router.use('/nostalgic', nostalgic);
 
-const pool = new Pool({max: require('os').cpus().length});
+// const pool = new Pool({max: require('os').cpus().length});
 
 router.get('/', (req, res)=>{
     res.status(200).send("Hello fom /api");
+})
+
+router.get('/download/:link', (req, res)=>{
+    try{
+        let link = Buffer.from(req.params.link,'base64').toString('ascii');
+        if(!link.includes('-')){
+            throw('File does not exists')
+        }
+        let arr = link.split('-');
+        res.download(path.join(process.env.NOSTALGIC_ROOT, arr[1]), arr[2]);
+    }catch(err){
+        res.status(422).json({'error': err})
+    }
 })
 
 router.get('/img/:path', (req, res)=>{
@@ -91,4 +126,25 @@ router.get('/download/:hq/:path', (req, res)=>{
 router.get('/src', (req, res)=>{
     res.sendFile('E:\\Songs\\Tamil Songs\\Darbar\\Chumma_Kizhi-StarMusiQ.Top.mp3');
 })
+
+router.get('/share/:share_id', (req, res)=>{
+    let share_id = decode(req.params.share_id)
+    res.redirect('/signin.html#testshareresult');
+})
+
+/** Handle to give access to requester by owner */
+router.get('/auth/:share_auth_id',async (req, res)=>{
+    let share_auth_id = decode(req.params.share_auth_id)
+    try{
+        let result = await LinkSharingService.confirmLinkSharingRequest(share_auth_id);
+        res.json({'info': 'Successfully done'})
+    }catch(err){
+        res.status(422).json({'error': err})
+    }
+})
+
+
+function decode(str){
+    return Buffer.from(str,'base64').toString('ascii')
+}
 module.exports = router;

@@ -72,23 +72,47 @@ function fetchDir(e,folObj=""){
     observer.disconnect(); // release all target from watching   
     // controller.abort(); 
     let apiEndPoint = '';
-    if(folObj == ""){
-        let url = window.location.href;
-        if(url.includes('#')){ // for public sharing
-            let arr = url.split('#');
-            apiEndPoint = '/api/fs/listing/'+arr[1];
-        }else{
-            apiEndPoint = '/api/fs/listing'; // home directory
-        }
-    }else{
-        apiEndPoint = '/api/fs/listing/'+folObj.encodedPath;        
+    
+    if(!isSignedIn()){ // check signedin and redirect to login
+        redirect('/signin.html'+getCurrentURIFol());
     }
+    
+    if(getCurrentURIFol() !== ''){
+        folObj = {};
+        folObj['encodedPath'] = (getCurrentURIFol()).replace('#','');
+    }
+
+    if(folObj == ""){
+        apiEndPoint = '/api/nostalgic/listing';
+    }else{
+        apiEndPoint = '/api/nostalgic/listing/'+folObj.encodedPath;        
+    }
+
     get(apiEndPoint)
-    .then(obj=>{  
+    .then(obj=>{          
         currentDirPath = obj.path;      
         updateDirectoryListing(obj);
         updateRoute(e, folObj);
     })
+}
+
+/** Func to parse foldername from url */
+function getCurrentURIFol(){
+    let url = window.location.href;
+    if(url.includes('#')){ // for public sharing
+        let arr = url.split('#');
+        return '#'+arr[1]
+    }
+    return '';
+}
+
+/** Func to clear shared fold from URL to nav to Home Page without redirect */
+function clearSharedFolder(){
+    let url = window.location.href;
+    if(url.includes('#')){ // for public sharing
+        let arr = url.split('#');
+        window.location.href = arr[0];
+    }
 }
 
 /**
@@ -102,9 +126,9 @@ function updateRoute(e, folObj){
             children[i].remove();
         }
     }else{
-        if(folObj){
+        if(folObj && folObj.folderName){
             let span = create('span', ' route');
-            span.innerHTML = '/'+folObj.folderName;
+            span.innerHTML = '/'+ folObj.folderName;
             span.onclick = function(e){
                 fetchDir(e, folObj);
             }
@@ -118,6 +142,7 @@ function updateRoute(e, folObj){
  */
 function clearRoute(){
     _('routes').innerHTML = "";
+    clearSharedFolder();
     fetchDir();
 }
 
@@ -130,10 +155,16 @@ function moveToTop() {
 }
 
 /**
-    hide or display back to top btn
+    make top bae sticky & hide or display back to top btn
  */
 window.onscroll = function() {
     let backToTopBtn = _("back-to-top-btn");
+    let path = _('path');
+    if(document.body.scrollTop > 0 || document.documentElement.scrollTop > 0) {
+        path.style.position = "fixed";
+    }else{
+        path.style.position = "relative";
+    }
     if(document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
         backToTopBtn.style.display = "block";
     }else{
@@ -205,7 +236,7 @@ function uploadFiles(e){
                 readFileAsDataURL(files[i])
                 .then(file=>{
                     file['path'] = currentDirPath;
-                    return postAjax('/api/upload', file, uploadsItem);
+                    return postAjax('/api/nostalgic/upload', file, uploadsItem);
                 })
             )
         }
@@ -237,9 +268,64 @@ function uploadFiles(e){
     }
 }
 
+async function uploadFilesSequentially(e){
+    let files = e.target.files;
+    console.log("files array", files);
+    let size = ()=>{
+        let byet = 0;
+        for(i=0;i<files.length;i++){
+            byet = byet + files[i].size;
+        }
+        return Math.ceil(((byet/1024)/1024));
+    }
+    let decision = false;
+    if(files.length > 0){
+        decision = confirm("Sure ! You want to upload "+files.length+" file(s) of about "+size()+"MB");
+    }
+    let uploads = _('uploads');
+    if(decision){
+        try{
+            toggleUploadProgress();
+            _('upload-head-text').innerHTML = 'Uploading '+files.length+' items';
+            uploads.style.display = 'block';
+
+            for(i=0;i<files.length;i++){
+                let id = Date.now();
+                let uploadsItem = createUploadsItem(files[i].name, id);
+                prepend(_('uploads-items'), uploadsItem);
+                let file = await readFileAsDataURL(files[i])
+                file['path'] = currentDirPath;
+                let postResponse = await postAjax('/api/nostalgic/upload', file, uploadsItem)
+            }            
+            // close the dialog goes here
+            _('upload-head-text').innerHTML = 'Upload Completed';
+            showNotification('Upload Successful... Your uploads will be available soon :) ');
+            setTimeout(()=>{
+                toggleUploadProgressState = false;
+                _('uploads-items').innerHTML = '';
+                uploads.style.display = 'none';
+                // display modal here
+            }, displayTime);
+
+        }catch(err){
+            console.log("Upload Error : ",err);
+            alert('Error Occurred !!');
+            _('upload-head-text').innerHTML = 'Error Occured';
+            showWarning('Error Occured :(  <br> Err : '+err);
+            setTimeout(()=>{
+                toggleUploadProgressState = false;
+                _('uploads-items').innerHTML = '';
+                uploads.style.display = 'none';
+            }, displayTime);
+        }
+    }else{
+        alert('Upload aborted !!');
+    }
+}
+
 /** Func to create progress bar inside the Uploads container */
-function createUploadsItem(fileName='not specified'){
-    let uploadsItem = create('div','uploads-item');
+function createUploadsItem(fileName='not specified', id){
+    let uploadsItem = create('div','uploads-item', id);
     
     let name = create('div', 'filename');
     name.innerHTML = fileName;
@@ -291,7 +377,7 @@ function createNewFolder(){
             name : name,
             base : currentDirPath
         }
-        post('/api/fs/newfolder', postData)
+        post('/api/nostalgic/newfolder', postData)
         .then(res=>{
             if(res.status){                    
                 // appending folder to container
@@ -319,23 +405,44 @@ function createNewFolder(){
 /**
     Function to display notification and warning
  */
-function showNotification(content){
+function showNotification(content, justShowHide=true){
     _('notification-content').innerHTML = content;
     _('notification-container').style.backgroundColor = green;
     _('notification-container').style.right = '10px';
-    setTimeout(()=>{
-        _('notification-container-close').click();        
-    }, displayTime);
+    if(justShowHide){
+        setTimeout(()=>{
+            _('notification-container-close').click();        
+        }, displayTime);
+    }    
 }
-function showWarning(content){
+function showWarning(content, justShowHide=true){
     _('notification-content').innerHTML = content;
     _('notification-container').style.backgroundColor = red;
     _('notification-container').style.right = '10px';
-    setTimeout(()=>{
-        _('notification-container-close').click();        
-    }, displayTime);
+    if(justShow){
+        setTimeout(()=>{
+            _('notification-container-close').click();        
+        }, displayTime);
+    }
 }
 
-
-
-
+/** 
+    Function to toggle SignIn & SignUp Card
+ */
+function toggleCard(e){
+    let el = e.target;
+    let elements = el.parentElement.children;
+    for(i=0; i< elements.length; i++){
+        elements[i].classList.remove('card-head-active');
+    }
+    el.classList.add('card-head-active');
+    if(el.innerHTML.toLowerCase().includes('in')){
+        _('signin').style.display = 'block';
+        _('signup').style.display = 'none';
+        _('otp-card').style.display = 'none';
+    }else{
+        _('signin').style.display = 'none';
+        _('signup').style.display = 'block';
+        _('otp-card').style.display = 'none';
+    }
+}

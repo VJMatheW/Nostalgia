@@ -32,5 +32,8 @@
     .path{
         padding: 10px 10px;
     }
-
+    /* Login  */
+    .card{
+        width: 75%;
+    }
 }

@@ -72,34 +72,40 @@ function createContainer(type){
 function updateDirectoryListing(obj){
     let parentContainer = _('container');
     images = [];
-    parentContainer.innerHTML = "";
-    if(obj.folders.length > 0){
-        let folderCotainer = createContainer('folders');
-        obj.folders.forEach(folObj => {                
-            append(folderCotainer,createFolder(folObj)); 
-        });
-        append(parentContainer, folderCotainer);
-    }
+    if(obj.folders.length > 0 || obj.files.length > 0){
+        parentContainer.innerHTML = "";
+        if(obj.folders.length > 0){
+            let folderCotainer = createContainer('folders');
+            obj.folders.forEach(folObj => {                
+                append(folderCotainer,createFolder(folObj)); 
+            });
+            append(parentContainer, folderCotainer);
+        }
 
-    if(obj.files.length > 0){
-        let fileContainer = createContainer('files');
-        append(parentContainer, fileContainer);
-        obj.files.forEach(name => {   
-            images.push({path: name, base64Url: ''});
-            append(fileContainer, createFile(name));
-        });                
-        lazyLoad();
-    } 
+        if(obj.files.length > 0){
+            let fileContainer = createContainer('files');
+            append(parentContainer, fileContainer);
+            obj.files.forEach(name => {   
+                images.push({path: name, base64Url: ''});
+                append(fileContainer, createFile(name));
+            });                
+            lazyLoad();
+        } 
+    }else{
+        parentContainer.innerHTML = `<div class="empty">You havent uploaded or created any files/folders in here<div>`
+    }
     moveToTop();   
 }
 
-function download(path){ 
-    let a = create('a');
+async function download(path){ 
     if(path == ''){
-        a.href = baseURL+'/api/download/'+_('dowload-hq').checked+'/'+images[index].path;
+        path = '/api/nostalgic/download/'+_('dowload-hq').checked+'/'+images[index].path;
     }else{
-        a.href = baseURL+'/api/download/'+_('dowload-hq').checked+'/'+path;
+        path = '/api/nostalgic/download/'+_('dowload-hq').checked+'/'+path;
     }
+    let link = await get(path)
+    let a = create('a');
+    a.href = baseURL+'/api/download/'+link.token;
     a.click();
 }
 
