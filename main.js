@@ -13,7 +13,7 @@ const auth = require('./Server/authentication');
 const PORT = (process.env.PORT || 5000);
 
 // setting root directory
-process.env.root = process.argv[2];
+// process.env.root = process.argv[2];
 
 
 app.set('port', PORT);
