@@ -63,3 +63,7 @@ typings/
 
 # db file
 .sqlite
+.sql
+
+# env file
+.env
