@@ -12,7 +12,7 @@ router.post('/signin', async (req, res)=>{
         console.log(payload.iss)
         if(!payload || payload.iss !== 'https://accounts.google.com'){ // if error occurs or id_token tampered
             if(!payload || payload.iss !== 'accounts.google.com'){
-                res.sendStatus(401).json({'error': 'Something went wrong'}); // unauthorized
+                res.status(401).json({'error': 'Something went wrong'}); // unauthorized
                 return;
             }
         } 
@@ -22,19 +22,19 @@ router.post('/signin', async (req, res)=>{
         // let picUrl = payload.picture;
 
         let obj = await UserService.validateUserByEmail(email_id, u_name)        
-        let token = AuthenticationService.jwt.sign({'u_id': obj.u_id}, clientId+"")
-        res.status(201).json({ 'status': true, 'token': token, 'clientId': clientId, 'uid': obj.u_id, 'u_name': obj.u_name })
+        let token = AuthenticationService.jwt.sign({'u_id': obj.u_id})
+        res.status(201).json({ 'status': true, 'token': token, 'uid': obj.u_id, 'u_name': obj.u_name })
         
-    }else{
+    }else if(mobile_no){
         // signin with mobile number
         try{
             let obj = await UserService.validateUserByMobile(mobile_no, password)
-            let token = AuthenticationService.jwt.sign({'u_id': obj.u_id}, clientId+"")
-            res.status(201).json({ 'status': true, 'token': token, 'clientId': clientId, 'uid': obj.u_id, 'u_name': obj.u_name })  
+            let token = AuthenticationService.jwt.sign({'u_id': obj.u_id})
+            res.status(201).json({ 'status': true, 'token': token, 'uid': obj.u_id, 'u_name': obj.u_name })  
         }catch(err){
             console.log(err)
             if(err.startsWith('OTP')){
-                res.status(503).json({'error': err})
+                res.status(403).json({'error': err})
                 return;
             }
             res.status(401).json({'error': err})
@@ -62,15 +62,14 @@ router.post('/signup', async (req, res)=>{
 router.post('/otp', async (req, res)=>{
     let u_id = req.body.u_id
     let otp = req.body.otp
-    let clientId = req.body.clientId
 
     try{
-        let status = await UserService.validateOtp(u_id, otp)
+        let obj = await UserService.validateOtp(u_id, otp)
 
         // generate the token and send it to store in local storage
-        let token = AuthenticationService.jwt.sign({'u_id': u_id}, clientId+"")
+        let token = AuthenticationService.jwt.sign({'u_id': u_id})
 
-        res.status(201).json({ 'status': true, 'token': token, 'clientId': clientId, 'uid': u_id })  
+        res.status(201).json({ 'status': true, 'token': token, 'uid': u_id, 'u_name': obj.u_name })  
     }catch(err){
         res.status(401).json({'error': err})
         return;

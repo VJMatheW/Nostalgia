@@ -20,7 +20,7 @@ let sign = (payload)=>{
     return jwt.sign(payload, SECRET_KEY_PRIVATE, signOptions)
 }
 
-let verify = (token, clientUnique)=>{
+let verify = (token)=>{
     try{
         // signOptions.subject = clientUnique
         return jwt.verify(token, SECRET_KEY_PUBLIC, signOptions)

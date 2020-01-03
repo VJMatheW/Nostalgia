@@ -23,6 +23,6 @@ exports.makeValidateOtp = ({ usersTbl })=>{
 
         usersTbl.update({ otp_verified: true, 'u_id':u_id })
 
-        return true
+        return {"status":true, "u_name": user.getName()}
     }
 }

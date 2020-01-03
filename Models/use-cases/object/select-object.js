@@ -21,6 +21,7 @@ exports.makeSelectObject = ({ objectsTbl })=>{
         }
 
         result.forEach(row => {
+            row['parent_id'] = row['parent_id']+''; // or it will interpreted as false while makingObject
             let object = makeObject(row);
             if(object.getOType() == '1'){ // folder
                 let temp = {}
