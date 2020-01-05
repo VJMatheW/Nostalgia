@@ -15,6 +15,7 @@ exports.makeGetImage = ({ objectsTbl })=>{
             throw('Object not found !!')
         }
 
+        result[0]['parent_id'] = result[0]['parent_id']+''
         let object = makeObject(result[0])
         obj['mime'] = object.getMimeType();
 
