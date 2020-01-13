@@ -25,7 +25,7 @@ exports.makeSendOtp = function({ usersTbl, NotificationService }){
 
         console.log(obj)
         console.log('Expire By : ',new Date(user.getOtpExpiration()).toLocaleString())
-        let text = `Hello ${user.getName()}, Your OTP for getnostalgic.com is ${user.getOtp()} which expires by ${ new Date(user.getOtpExpiration()).toLocaleString() }`
+        let text = `Hello ${user.getName()}, Your OTP for ${process.env.FRONT_END_URL} is ${user.getOtp()} which expires by ${ new Date(user.getOtpExpiration()).toLocaleString() }`
         let res = await NotificationService.sendSMS(user.getMobile(), text)
 
         console.log('SendOTP : ',user)

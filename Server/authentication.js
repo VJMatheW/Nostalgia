@@ -33,8 +33,8 @@ router.post('/signin', async (req, res)=>{
             res.status(201).json({ 'status': true, 'token': token, 'uid': obj.u_id, 'u_name': obj.u_name })  
         }catch(err){
             console.log(err)
-            if(err.startsWith('OTP')){
-                res.status(403).json({'error': err})
+            if(err.error && err.error.startsWith('OTP')){
+                res.status(403).json({'u_id':err.u_id, 'error': err.error})
                 return;
             }
             res.status(401).json({'error': err})
@@ -42,6 +42,9 @@ router.post('/signin', async (req, res)=>{
     }
 })
 
+/**
+    Handles initial signup process
+ */
 router.post('/signup', async (req, res)=>{
     let data = req.body;
         
@@ -59,6 +62,27 @@ router.post('/signup', async (req, res)=>{
     }    
 })
 
+/**
+    Handles request to resend otp when otp not verified
+ */
+router.post('/resendotp', async(req, res)=>{
+    let u_id = req.body.u_id
+    try{
+        let otpRes = await UserService.sendOtp(u_id)
+        if(otpRes.ErrorCode == 000){
+            res.status(201).json({'u_id': u_id, 'otp': otpRes});
+        }else{
+            res.status(500).json({'error': 'OTP not sent'})
+        }
+    }catch(err){
+        res.status(422).json({'error': err}) // unprocessable entity
+        return;
+    }   
+})
+
+/**
+    Handles validation of otp entered by the user
+ */
 router.post('/otp', async (req, res)=>{
     let u_id = req.body.u_id
     let otp = req.body.otp
@@ -72,11 +96,42 @@ router.post('/otp', async (req, res)=>{
         res.status(201).json({ 'status': true, 'token': token, 'uid': u_id, 'u_name': obj.u_name })  
     }catch(err){
         res.status(401).json({'error': err})
-        return;
+    }
+})
+
+/**
+    Handles forgotpass initial
+ */
+router.post('/forgotpass', async (req, res)=>{
+    let validate = req.body.validate
+    let mobile_no = req.body.mobile_no
+
+    try{
+        let u_id = await UserService.processForgotPassword(mobile_no)
+        res.status(201).json({'u_id': u_id})        
+    }catch(err){
+        res.status(422).json({'error': err})
+    }    
+})
+
+/**
+    Handles setting new password
+ */
+router.post('/setnewpassword', async (req, res)=>{
+    let new_password = req.body.new_password
+    let u_id = req.body.u_id
+    let otp = req.body.otp
+
+    try{
+        let changePassword = await UserService.setNewPassword(u_id, new_password, otp)
+        if(changePassword){
+            res.status(201).json({'status': true})
+        }else{
+            res.status(422).json({'error': changePassword})
+        }
+    }catch(err){
+        res.status(422).json({'error': err})
     }
 })
 
 module.exports = router;
-
-// functions
-

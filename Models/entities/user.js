@@ -45,6 +45,9 @@ exports.buildUser= function({ md5, sanitize }){
             getMobile: ()=> mobile_no,
             getEmail: ()=> email_id,
             getPassword: ()=> password,
+            setPassword: (new_password)=>{
+                password = new_password
+            },
             setHashedPassword: ()=> {
                 if(password && password.length > 0){
                     password = makeHash(password)

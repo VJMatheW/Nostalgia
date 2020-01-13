@@ -27,7 +27,7 @@ exports.makeAddLinkSharingRequest = ({ linkSharingTbl, linkSharingAuthTbl, Notif
             obj['u_name'] = row.u_name
             
             let unique = Buffer.from(obj.share_auth_id+'').toString('base64')
-            let txt = `Hi ${row.u_name}, ${row.requester_name} wants to collaborate for ${row.name} album with you.To let him collaborate ${process.env.FRONT_END_URL}/auth?o=${unique}`
+            let txt = `Hi ${row.u_name}, ${row.requester_name} wants to collaborate for ${row.name} album with you. To let him collaborate ${process.env.FRONT_END_URL}/auth?o=${unique}`
             
             if(row.mobile_no){
                 // u_id, u_name, mobile_no, email_id, o_id, name, requester_name                
