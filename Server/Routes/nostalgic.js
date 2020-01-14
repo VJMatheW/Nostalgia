@@ -124,7 +124,7 @@ router.get('/share/:o_id', async (req, res)=>{
         let obj = await ObjectService.isAuthorized(o_id, u_id)        
         let share_id = await LinkSharingService.addLinkSharing(o_id, u_id)
         // console.log('/shared/'+obj.name+'/'+Buffer.from(share_id+'').toString('base64'))
-        res.status(200).json({'link': '/share#'+obj.name.replace(' ','_')+'/'+Buffer.from(share_id+'').toString('base64') })           
+        res.status(200).json({'link': '/share#'+encodeURIComponent(obj.name.replace(/\ /gi,'_'))+'/'+Buffer.from(share_id+'').toString('base64') })           
     }catch(err){
         console.log("Error : ",err)
         if(err.startsWith('Unauthorized')){
