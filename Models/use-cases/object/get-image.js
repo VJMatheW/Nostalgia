@@ -3,7 +3,7 @@ const { makeObject } = require('../../entities')
 const fs = require('fs')
 const path = require('path')
 
-exports.makeGetImage = ({ objectsTbl })=>{
+exports.makeGetImage = ({ objectsTbl, HttpService })=>{
     return async function(o_id){
         let result = await objectsTbl.getById(o_id)
 
@@ -28,6 +28,10 @@ exports.makeGetImage = ({ objectsTbl })=>{
         compressedImgPath = path.join(compressedImgPath, object.getVName());
         
         if(!fs.existsSync(compressedImgPath)){
+            // recompress the undone object from the original file            
+            HttpService.get(`http://localhost:5001/compress/${object.getOid()}`, (res)=>{
+                // console.log(res);
+            })
             throw('File not found')
         }
 
