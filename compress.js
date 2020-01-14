@@ -23,7 +23,9 @@ let isCompressing = false;
 
 app.get('/compress/:o_id',async (req, res)=>{
     let o_id = req.params.o_id;
-    arr.push(o_id);
+    if(!arr.includes(o_id)){ // if the object id is not already present in array then push - this stop duplicate for file not found
+        arr.push(o_id);
+    }
     res.sendStatus(200)
 
     if(!isCompressing){ // executes when not compressing
