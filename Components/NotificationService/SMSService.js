@@ -12,7 +12,7 @@ exports.sendSMS = function( mobile_no, text ){
                     // resolve({mobile_no, text})
                     // let res = {"ErrorCode":"000","ErrorMessage":"Done","JobId":"167610","MessageData":[{"Number":"919042307071","MessageId":"g7WKy4mi8ki3e11DXj1SNA"}]}
                     resolve(res)
-            // })
+            })
         }catch(err){
             reject(err)
         }    
