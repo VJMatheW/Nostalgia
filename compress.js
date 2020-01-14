@@ -66,7 +66,13 @@ async function compress(o_id){
         let metadata = img.getMetaData();
 
         if(metadata.orientation == undefined){ 
-            let wh = sizeOf(img.img_path);
+            let wh = {};
+            try{
+                wh = sizeOf(img.img_path)
+            }catch(err){
+                wh['width'] = 1920
+                wh['height'] = 1080
+            }
             metadata['orientation'] = img.calcOrientation(wh.width, wh.height);
             metadata['width'] = wh.width;
             metadata['height'] = wh.height;
