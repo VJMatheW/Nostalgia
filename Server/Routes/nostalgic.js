@@ -40,7 +40,7 @@ router.post('/newfolder', async (req, res)=>{
     let folder = req.body;        
     folder.o_type = '1';  // 1 for folders
     folder.v_name = folder.name;
-    folder.parent_id = Buffer.from(folder.base, 'base64').toString('ascii')
+    folder.parent_id = decode(folder.base)
     folder.created_by = folder.u_id
     console.log(folder)
     try{        
@@ -89,7 +89,7 @@ router.post('/upload', (req, res)=>{
 
 /** Handles when retriving compressed img */
 router.get('/img/:o_id',async (req, res)=>{
-    let o_id = Buffer.from(req.params.o_id, 'base64').toString('ascii');
+    let o_id = decode(req.params.o_id);
     try{
         let obj = await ObjectService.getImage(o_id);
         res.json(obj)
@@ -98,9 +98,23 @@ router.get('/img/:o_id',async (req, res)=>{
     }
 })
 
+/** Handles when delete an img */
+router.post('/delete/img/:o_id', async(req, res)=>{
+    let u_id = req.body.u_id
+    let o_id = decode(req.params.o_id)
+    try{
+        let fname = await ObjectService.deleteImage(o_id, u_id)
+        res.status(201).json({status: true})
+        // delete the files in here
+        deleteOriginalAndCompressedImage(fname)
+    }catch(err){
+        res.status(401).json({'error': err})
+    }
+})
+
 /** Handles the download feature */
 router.get('/download/:hq/:path', async (req, res)=>{
-    let o_id = Buffer.from(req.params.path, 'base64').toString('ascii');
+    let o_id = decode(req.params.path);
     let hq = req.params.hq;
     try{
         let obj = await ObjectService.downloadObject(o_id)
@@ -160,6 +174,26 @@ function callCompress(o_id){
     HttpService.get(`http://localhost:5001/compress/${o_id}`, (res)=>{
         // console.log(res);
     })
+}
+
+function deleteOriginalAndCompressedImage(fileName){
+    let p = path.join(process.env.NOSTALGIC_ROOT, 'Compressed')
+    p = path.join(p,fileName)
+    try{
+        if(fs.existsSync(p)){
+            fs.unlink(p,(err)=>{
+                if(err) throw err
+            })
+        }
+        p = p.replace('Compressed', 'Original')
+        if(fs.existsSync(p)){
+            fs.unlink(p,(err)=>{
+                if(err) throw err
+            })
+        }
+    }catch(err){
+        console.log(err)
+    }
 }
 
 module.exports = router;

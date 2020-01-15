@@ -5,7 +5,8 @@ exports.makeObjectsTbl = function({ db }){
         getHomeForUser,
         isAuthorized,
         insert,
-        update
+        update,
+        deleteById
     })
 
     function getById(o_id){
@@ -51,5 +52,10 @@ exports.makeObjectsTbl = function({ db }){
 
         // console.log(query)
         return db.run(query, params)
+    }
+
+    function deleteById(o_id){
+        let query = 'delete from objects where o_id=?'
+        return db.run(query, [o_id])
     }
 }
