@@ -15,7 +15,7 @@ exports.makeObjectsTbl = function({ db }){
     }
 
     function getForUser(u_id, parent_id){
-        let query = 'select * from objects where parent_id=?'; // and created_by=?'
+        let query = 'select * from objects where parent_id=? order by digitized_date desc'; // and created_by=?'
         // console.log(`'select * from objects where parent_id=${parent_id} and created_by=${u_id}`)
         return db.get(query, [parent_id])
     }
