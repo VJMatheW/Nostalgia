@@ -156,7 +156,11 @@ router.get('/share/auth/:share_id', async (req, res)=>{
     try{
         let obj = await LinkSharingService.addLinkSharingRequest(share_id, u_id)
         console.log('linksharingrequest : ', obj)
-        res.status(200).json({ 'name': obj.name,'info': `Access Premission for ${(obj.o_name).toUpperCase()} has been sent to ${obj.u_name}. We will get back to you once ${obj.u_name} accepts your request.<br/>Click <a href='/'>Home</a> for home page` })
+        if(obj.status){ // if obj.status is true
+            res.status(200).json({ 'name': obj.name, 'status': obj.status, 'o_id': Buffer.from(obj.o_id+'').toString('base64') })
+        }else if(obj.status == null || !obj.status){
+            res.status(200).json({ 'name': obj.name, 'status': obj.status, 'info': `Access Premission for ${(obj.o_name).toUpperCase()} has been sent to ${obj.u_name}. We will get back to you once ${obj.u_name} accepts your request.<br/>Click <a href='/'>Home</a> for home page` })
+        }
     }catch(err){
         console.log(err)
         res.status(422).json({'error': err})
