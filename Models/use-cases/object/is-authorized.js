@@ -4,7 +4,7 @@ exports.makeIsAuthorized = ({ objectsTbl })=>{
 
 
         if(!result.length > 0){
-            throw('Unauthorized access')
+            throw('Unauthorized Deletion')
         }
 
         return result[0]

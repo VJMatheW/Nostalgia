@@ -43,6 +43,23 @@ router.post('/signin', async (req, res)=>{
 })
 
 /**
+    Handle public authorization settings
+ */
+router.get('/public', async (req, res)=>{
+    try{
+        let token = AuthenticationService.jwt.sign({'u_id': 10000})
+        res.status(201).json({ 'status': true, 'token': token, 'uid': 10000, 'u_name': "Public Profile" })  
+    }catch(err){
+        console.log(err)
+        if(err.error && err.error.startsWith('OTP')){
+            res.status(403).json({'u_id':err.u_id, 'error': err.error})
+            return;
+        }
+        res.status(401).json({'error': err})
+    }
+})
+
+/**
     Handles initial signup process
  */
 router.post('/signup', async (req, res)=>{

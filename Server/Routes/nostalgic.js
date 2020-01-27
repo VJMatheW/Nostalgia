@@ -103,6 +103,7 @@ router.post('/delete/img/:o_id', async(req, res)=>{
     let u_id = req.body.u_id
     let o_id = decode(req.params.o_id)
     try{
+        let obj = await ObjectService.isAuthorized(o_id, u_id)
         let fname = await ObjectService.deleteImage(o_id, u_id)
         res.status(201).json({status: true})
         // delete the files in here
@@ -164,6 +165,28 @@ router.get('/share/auth/:share_id', async (req, res)=>{
     }catch(err){
         console.log(err)
         res.status(422).json({'error': err})
+    }
+})
+
+router.get('/share/public/:o_id', async (req, res)=>{
+    let o_id = Buffer.from(req.params.o_id, 'base64').toString('ascii')
+    let u_id = req.body.u_id
+    try{
+        if(o_id == 0){
+            throw('You cannot share home folder')
+        }
+        let obj = await ObjectService.isAuthorized(o_id, u_id)        
+        
+        // add public share table to control the sharing options
+        
+        res.status(200).json({'link': '/publicshare#'+encodeURIComponent(obj.name.replace(/\ /gi,'_'))+'/'+Buffer.from(o_id+'').toString('base64') })           
+    }catch(err){
+        console.log("Error : ",err)
+        if(err.startsWith('Unauthorized')){
+            res.status(401).json({'error': err})
+            return;
+        }
+        res.status(422).json({ 'error': err })
     }
 })
 

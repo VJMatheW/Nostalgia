@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <!-- <meta name="google-signin-client_id" content="3339472325-1ggbeee3t78iplbmhuet40lomsepv2oa.apps.googleusercontent.com"> -->
-    <title>Home-GetNostalgic</title>  
-    <link rel="icon" href="logo.png">
-    <link rel="stylesheet" href="style/commons.css">  
-    <link rel="stylesheet" href="style/main.css">
-    <link rel="stylesheet" href="style/mainmob.css">
+    <title>PublicShare-GetNostalgic</title>  
+    <link rel="icon" href="../logo.png">
+    <link rel="stylesheet" href="../style/commons.css">  
+    <link rel="stylesheet" href="../style/main.css">
+    <link rel="stylesheet" href="../style/mainmob.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>  
         .fa{
@@ -117,14 +116,7 @@
     </style>
 </head>
 <body>
-    <input class="hide-me" type="text" id="link-sharing-inp" value="">    
     <span class="back-to-top-btn" id="back-to-top-btn" onclick="moveToTop();" >&#8679;</span>
-    <span class="more-options" id="more-options"><i class="fa fa-chevron-down"></i></span>
-    <div class="more-options-container flex" id="more-options-container">
-        <!-- Link sharing -->
-        <span id="link-sharing" title="Share this Folder"><i class="fa fa-link"></i> Protected Sharing</span>
-        <span id="public-link-sharing" title="Share this Folder Publicly"><i class="fa fa-link"></i> Public Sharing</span>
-    </div>
 
     <!-- Route / Path -->
     <div class="path" id="path" >
@@ -133,12 +125,9 @@
             <span id="routes"></span>
         </div>
         <div style="width: 15%;text-align: right;">
-            <input id="file" type="file" hidden="hidden" name="photo" onchange="uploadFilesSequentially(event)" accept="image/png, image/jpeg" multiple/>
             <div class="btn" id="listbtn" onclick="toggleList();" ><i class="fa fa-cog" aria-hidden="true"></i></div>
             <div class="btn" id="" onclick="logout();" ><i class="fa fa-power-off" aria-hidden="true"></i></div>                        
             <div class="list" id="list">                
-                <p onclick="toggleNewFolderModal();" ><i class="fa fa-folder-o" aria-hidden="true"></i> New Folder</p>
-                <p onclick="upload();"><i class="fa fa-upload" aria-hidden="true"></i> Upload Pic(s)</p>
                 <p style="border-top: 0.3px solid white;" ><input type="checkbox" id="dowload-hq"><i class="fa fa-download" style="margin-left: 13px;"></i> pics in HQ</p>
             </div>            
         </div>
@@ -150,6 +139,7 @@
         <div class="empty" ></div>
     </div>
     <div id="link-share">Hello world html</div>
+    
     <!-- Modal - Slideshow -->
     <div class="modal-container-bg" id="modal-slideshow" > 
         <div style="position: relative;width: 100%;height: 100%;" >            
@@ -174,57 +164,50 @@
         </div>        
     </div>
 
-    <!-- Modal - NewFolder -->
-    <div class="modal-container-bg" id="modal-newfolder">
-        <div class="modal-content" style='flex-direction: row;justify-content: center;' >
-            <div class="folName">
-                <div id="modal-close-btn" class="modal-close-btn" onclick="toggleNewFolderModal();" ></div>
-                <h3>Enter Folder Name :</h3>
-                <input type="text" name="" id="folName">
-                <button onclick="createNewFolder();" >Create</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal - DisplayNotification -->
     <div class="notification-container" id="notification-container">
         <i class="fa fa-times" style="float: right;" id="notification-container-close"></i>
         <div class="notification-content" id="notification-content"></div>
     </div>
 
-    <!-- Upload Progress -->
-    <div class="uploads" id="uploads">
-        <div class="upload-head">
-            <div class="upload-head-text" id="upload-head-text">Uploading</div>
-            <div class="upload-head-btn" id="upload-head-btn" onclick="toggleUploadProgress(this);" ><i class="fa fa-chevron-down" aria-hidden="true"></i></div>
-        </div>
-        <div class="uploads-items" id="uploads-items">
-            <!-- <div class="uploads-item" >
-                <div class="filename">Hello world testHello world testHello world test</div>
-                <progress class="progress" min="0" max="100" value="20"></progress>
-            </div> -->
-        </div>
-    </div>
 
     <!-- List Bg -->
     <div class="list-bg" id="list-bg">
     </div>
 
-    <script src="./js/commons.js"></script>    
-    <script src="./js/dirview.js"></script>
-    <script src="./js/slideview.js"></script>
-    <script src="./js/main.js"></script>
+    <script src="../js/commons.js"></script>    
+    <script src="../js/dirview.js"></script>
+    <script src="../js/slideview.js"></script>
+    <script src="../js/main.js"></script>
     <script>    
 
-        if(isSignedIn()){
-            _('uname').innerHTML = retrive('uname')
-            if(retrive('uid') == 10000){
-                _('list').children[0].style.display = "none"
-                _('list').children[1].style.display = "none"
+        window.onload = async ()=>{
+            // if(isSignedIn()){
+            //     _('uname').innerHTML = retrive('uname')
+            // }else{
+            //     authorizePublic()
+            // }
+            await authorizePublic()
+            let url = window.location.href
+            if(url.includes('#')){
+                let arr = url.split('#')
+                if(arr[1].includes('/')){
+                    let share = arr[1].split('/')
+                    share = share[1]
+                    console.log(share)
+                    if(!isSignedIn()){
+                        await authorizePublic()
+                    }
+                    redirect('#'+share, true)
+                }               
             }
-        }
+        }    
 
-        fetchDir();          
+        async function authorizePublic(){
+            store('token', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxMDAwMCwiaWF0IjoxNTgwMTA5ODcwLCJleHAiOjE1ODAzNjkwNzAsImF1ZCI6Imh0dHA6Ly9nZXRub3N0YWxnaWMuY29tIiwiaXNzIjoiQVJNRSBEZXYgQ2VudGVyIn0.HvgznOEaoUblI2FT7SJKUtubhZg7QCpjBJIXuJipF6I")
+            store('uid', 10000)
+            store('uname', "Public Profile")
+        }
 
         function fast(){
             _('timeout').innerHTML  = (parseInt(_('time').value)/1000)+'s';
@@ -244,60 +227,6 @@
         /** Event listeners */
         _('list-bg').addEventListener('click',()=>{
             toggleList()
-        })
-
-        /* More option down arrow */
-        _('more-options').addEventListener('click',()=>{
-            _('more-options-container').style.top = '0px';
-            setTimeout(()=>{
-                _('more-options-container').style.top = '-40px';
-            }, displayTime);
-        })
-
-        /* Link Sharing function */
-        _('link-sharing').addEventListener('click', async ()=>{
-            let res = await get('/api/nostalgic/share/'+currentDirPath);
-            if(!res && !res.link){
-                return;
-            }
-            let txt = _('link-share');
-            console.log(window.location.origin+res.link)
-            txt.innerHTML = window.location.origin+res.link;
-            if (document.selection) { // IE
-                var range = document.body.createTextRange();
-                range.moveToElementText(_('link-share'));
-                range.select();
-            } else if (window.getSelection) {
-                var range = document.createRange();
-                range.selectNode(_('link-share'));
-                window.getSelection().removeAllRanges();
-                window.getSelection().addRange(range);
-            }
-            document.execCommand("copy");            
-            showNotification('Shareable link Copied to clipboard');
-        })
-
-        /* Public Link Sharing function */
-        _('public-link-sharing').addEventListener('click', async ()=>{
-            let res = await get('/api/nostalgic/share/public/'+currentDirPath);
-            if(!res && !res.link){
-                return;
-            }
-            let txt = _('link-share');
-            console.log(window.location.origin+res.link)
-            txt.innerHTML = window.location.origin+res.link;
-            if (document.selection) { // IE
-                var range = document.body.createTextRange();
-                range.moveToElementText(_('link-share'));
-                range.select();
-            } else if (window.getSelection) {
-                var range = document.createRange();
-                range.selectNode(_('link-share'));
-                window.getSelection().removeAllRanges();
-                window.getSelection().addRange(range);
-            }
-            document.execCommand("copy");            
-            showNotification('Publicly shareable link copied to clipboard');
         })
     </script>
 </body>
