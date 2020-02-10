@@ -182,12 +182,6 @@
     <script>    
 
         window.onload = async ()=>{
-            // if(isSignedIn()){
-            //     _('uname').innerHTML = retrive('uname')
-            // }else{
-            //     authorizePublic()
-            // }
-            await authorizePublic()
             let url = window.location.href
             if(url.includes('#')){
                 let arr = url.split('#')
@@ -196,17 +190,29 @@
                     share = share[1]
                     console.log(share)
                     if(!isSignedIn()){
-                        await authorizePublic()
+                        let rs = await authorizePublic();
+                        console.log("before sign");
                     }
+                    console.log("asfter sign in ");
                     redirect('#'+share, true)
                 }               
             }
         }    
 
         async function authorizePublic(){
-            store('token', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxMDAwMCwiaWF0IjoxNTgwMTA5ODcwLCJleHAiOjE1ODAzNjkwNzAsImF1ZCI6Imh0dHA6Ly9nZXRub3N0YWxnaWMuY29tIiwiaXNzIjoiQVJNRSBEZXYgQ2VudGVyIn0.HvgznOEaoUblI2FT7SJKUtubhZg7QCpjBJIXuJipF6I")
-            store('uid', 10000)
-            store('uname', "Public Profile")
+            return fetch(baseURL+"/auth/public")
+            .then(res=>{
+                return res.json();
+            })
+            .then(obj=>{
+                console.log(obj);
+                store('token', obj.token)
+                store('uid', 10000)
+                store('uname', "Public Profile")
+            })
+            .catch(err=>{
+                console.log("err : ", err);
+            })
         }
 
         function fast(){
