@@ -2,10 +2,10 @@ const controller = new AbortController();
 // signal to pass to fetch
 const signal = controller.signal;
 
-   let baseURL = 'https://api.getnostalgic.com:8081'
+//    let baseURL = 'https://api.getnostalgic.com:8081'
 // let baseURL = 'http://colorhomes.ddns.net:8081';
 // let baseURL = 'http://192.168.1.57:5000';
-// let baseURL = 'http://localhost:5000';
+let baseURL = 'http://localhost:5000';
 
 let currentDirPath = 'MA==';
 
@@ -205,7 +205,7 @@ function abortHandler(e, ref){
 }
 /** Handler ends here  */
 
-function create(tag, classname="", id="", name=""){
+function create(tag, classname="", id="", name="", content=""){
     var el = document.createElement(tag);        
     if(id != ""){
         el.id = id;
@@ -215,6 +215,9 @@ function create(tag, classname="", id="", name=""){
     }
     if(name != ""){
         el.name = name;
+    }
+    if(content != ""){
+        el.innerHTML = content
     }
     return el;
 }

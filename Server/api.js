@@ -8,7 +8,8 @@ const { ImageService, AuthenticationService } = require('../Components');
 const { LinkSharingService } = require('../Models')
 const fsys = require('./Routes/filesystem');
 const nostalgic = require('./Routes/nostalgic');
-const aurora = require('./Routes/aurora')
+const aurora = require('./Routes/aurora');
+const movie_listing = require('./Routes/movie_listing');
 
 // Middleware
 let verifyToken = (req, res, next)=>{
@@ -33,6 +34,7 @@ router.use('/fs', fsys);
 router.use('/nostalgic', verifyToken);
 router.use('/nostalgic', nostalgic);
 router.use('/aurora', aurora);
+router.use('/movie', movie_listing);
 
 // const pool = new Pool({max: require('os').cpus().length});
 
